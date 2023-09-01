@@ -29,21 +29,26 @@ const showCards = async(categoryId) => {
     const data = await res.json();
     // console.log(data.data)
     displayCards(data.data);
+
     
 }
-
 
 const displayCards =(cards)=>{
 
     
     // console.log(Array.isArray(cards));
 
+    const sortByView = document.getElementById('sort-by-view')
+    sortByView.addEventListener( 'click', function(){
+      cards.sort(function (a, b) {       
+          return parseFloat(b.others.views)- parseFloat(a.others.views);     
+          });
 
-    cards.sort(function (a, b) {
-        return parseFloat(b.others.views)- parseFloat(a.others.views)
-        });
+          displayCards(cards);
+  })
 
-        console.log(cards);
+    // console.log(cards);
+    
 
     const cardsContainer = document.getElementById('cards-container');
     const noData = document.getElementById('no-data');
@@ -56,23 +61,38 @@ const displayCards =(cards)=>{
     cards.forEach(card =>{
         const div = document.createElement('div');
 
+        const sec= card.others.posted_date;
+        let hour = Math.floor(sec/3600);
+        let extra = sec%3600;
+        let min = Math.floor(extra/60);
+        let time = hour + ' ' + 'hrs' + ' ' + min + ' '+ 'min' + ' ' + 'ago';
+        // console.log(time);
+        
+        // console.log(time);
         const verified = card.authors[0].verified;
-
-        if(verified===true){
+        // console.log(verified);
 
             div.innerHTML = `
             <div>
                 <div class="">
-                    <img src="${card.thumbnail}" alt="" class="h-40 w-full" />
+                    <div class="relative text-end">
+                      <img src="${card.thumbnail}" alt="" class="h-40 w-full" />
+                      <div class="absolute bottom-0 -mx-1 my-1 w-full">
+                        <button class="bg-gray-900 text-white text-xs rounded-sm">${hour !== 0 && min !== 0 ? time : ''}</button>
+                      </div>
+                    </div>
                     <div class="flex items-start mt-4">
                       <div class="mr-3">
                         <img src="${card.authors[0].profile_picture}" alt="" class="rounded-full h-8 w-8" />
                       </div>
                       <div>
                         <h2 class="text-base font-medium">${card.title}</h2>
-                        <div class="flex text-sm">
+                        <div class="flex text-sm items-center">
                             <p>${card.authors[0].profile_name}</p>
-                            <img src="./images/verified.svg" alt="">
+                            <div class="ms-1">
+                               ${verified ? '<img src="./images/verified.svg" alt="">' : ''}
+                            </div>
+                            
                         </div>
                         <p class="text-xs">${card.others.views}</p>
                       </div>
@@ -80,35 +100,7 @@ const displayCards =(cards)=>{
                   </div>
     
             </div>           
-            `            
-        }
-        else{
-                div.innerHTML = `
-                <div>
-                    <div class="">
-                        <img src="${card.thumbnail}" alt="" class="h-40 w-full" />
-                        <div class="flex items-start mt-4">
-                          <div class="mr-3">
-                            <img src="${card.authors[0].profile_picture}" alt="" class="rounded-full h-8 w-8" />
-                          </div>
-                          <div>
-                            <h2 class="text-base font-medium">${card.title}</h2>
-                            <div class="flex text-sm">
-                                <p>${card.authors[0].profile_name}</p>
-                                
-                            </div>
-                            <p class="text-xs">${card.others.views}</p>
-                          </div>
-                        </div>
-                      </div>
-        
-                </div>
-                
-                `             
-            }
-        // console.log(verified)
-        
-       
+            `                          
         cardsContainer.appendChild(div);
     })
 }
@@ -128,4 +120,7 @@ const displayCards =(cards)=>{
 }
 
 
+
 loadCategories();
+showCards("1000")
+
